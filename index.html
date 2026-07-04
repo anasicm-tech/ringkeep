@@ -368,6 +368,7 @@
 
       <div>
         <form id="ringkeep-form" action="https://formspree.io/f/anasicm@gmail.com" method="POST">
+          <input type="hidden" name="_next" value="https://anasicm-tech.github.io/ringkeep/#form-thanks">
           <div>
             <label for="name">Your Name</label>
             <input type="text" id="name" name="name" required>
@@ -431,26 +432,11 @@
 </a>
 
 <script>
-  document.getElementById('ringkeep-form').addEventListener('submit', async function(e){
-    e.preventDefault();
-    const form = e.target;
-    const data = new FormData(form);
-    try{
-      const res = await fetch(form.action, {
-        method: 'POST',
-        body: data,
-        headers: { 'Accept': 'application/json' }
-      });
-      if(res.ok){
-        form.reset();
-        document.getElementById('form-success').style.display = 'block';
-      } else {
-        alert('Something went wrong — please try WhatsApp or email instead.');
-      }
-    } catch(err){
-      alert('Something went wrong — please try WhatsApp or email instead.');
-    }
-  });
+  // Show a thank-you message if we've been redirected back after a successful submit
+  if(window.location.hash === '#form-thanks'){
+    const el = document.getElementById('form-success');
+    if(el){ el.style.display = 'block'; }
+  }
 </script>
 
 </body>
