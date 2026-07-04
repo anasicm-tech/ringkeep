@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ringkeep — AI Receptionist + Sales Assistant + Follow-Up Automation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0B0F0E;
+    --bg-panel:#121715;
+    --text:#F5F6F1;
+    --text-dim:#9AA39C;
+    --mint:#00D9A3;
+    --mint-dim:#0A5C46;
+    --amber:#FFB347;
+    --line:#22291F;
+    --radius:14px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter', sans-serif;
+    line-height:1.6;
+    overflow-x:hidden;
+  }
+  h1,h2,h3,.disp{font-family:'Space Grotesk', sans-serif; font-weight:600; letter-spacing:-0.02em;}
+  a{color:inherit; text-decoration:none;}
+  .wrap{max-width:1120px; margin:0 auto; padding:0 24px;}
+  section{padding:96px 0;}
+  @media(max-width:768px){ section{padding:64px 0;} }
+
+  /* NAV */
+  nav{
+    position:fixed; top:0; left:0; right:0; z-index:100;
+    background:rgba(11,15,14,0.85); backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  nav .wrap{display:flex; align-items:center; justify-content:space-between; padding:16px 24px;}
+  .logo{font-family:'Space Grotesk'; font-weight:700; font-size:1.3rem; display:flex; align-items:center; gap:8px;}
+  .logo .dot{width:8px; height:8px; border-radius:50%; background:var(--mint); box-shadow:0 0 12px var(--mint); animation:pulse 2s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;} 50%{opacity:0.4;}}
+  .nav-links{display:flex; gap:32px; font-size:0.9rem; color:var(--text-dim);}
+  .nav-links a:hover{color:var(--mint);}
+  .nav-cta{background:var(--mint); color:#04150F; padding:10px 20px; border-radius:8px; font-weight:600; font-size:0.9rem;}
+  @media(max-width:768px){ .nav-links{display:none;} }
+
+  /* HERO */
+  .hero{padding-top:160px; padding-bottom:80px; position:relative;}
+  .eyebrow{color:var(--mint); font-size:0.85rem; letter-spacing:0.08em; text-transform:uppercase; font-weight:600; margin-bottom:20px;}
+  .hero h1{font-size:clamp(2.4rem, 5vw, 4rem); line-height:1.08; max-width:820px;}
+  .hero h1 span{color:var(--mint);}
+  .hero p.lead{color:var(--text-dim); font-size:1.15rem; max-width:560px; margin-top:24px;}
+  .hero-cta{display:flex; gap:16px; margin-top:36px; flex-wrap:wrap;}
+  .btn-primary{background:var(--mint); color:#04150F; padding:14px 28px; border-radius:10px; font-weight:600; display:inline-block; transition:transform .2s;}
+  .btn-primary:hover{transform:translateY(-2px);}
+  .btn-secondary{border:1px solid var(--line); color:var(--text); padding:14px 28px; border-radius:10px; font-weight:600; display:inline-block; transition:border-color .2s;}
+  .btn-secondary:hover{border-color:var(--mint);}
+
+  /* DEMO WIDGET */
+  .demo{
+    margin-top:60px; background:var(--bg-panel); border:1px solid var(--line); border-radius:var(--radius);
+    padding:28px; max-width:460px; position:relative; overflow:hidden;
+  }
+  .demo-label{font-size:0.75rem; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:16px;}
+  .phone-row{display:flex; align-items:center; gap:12px; padding:12px 0; border-bottom:1px solid var(--line);}
+  .phone-icon{width:36px; height:36px; border-radius:50%; background:var(--mint-dim); display:flex; align-items:center; justify-content:center; flex-shrink:0;}
+  .phone-icon svg{width:18px; height:18px; stroke:var(--mint);}
+  .ring-anim{animation:ring 1s infinite;}
+  @keyframes ring{0%,100%{transform:rotate(0);} 20%{transform:rotate(15deg);} 40%{transform:rotate(-15deg);} 60%{transform:rotate(8deg);} 80%{transform:rotate(-8deg);}}
+  .phone-meta strong{font-size:0.95rem; display:block;}
+  .phone-meta span{font-size:0.8rem; color:var(--text-dim);}
+  .chat-bubble{
+    margin-top:16px; background:#0A1D17; border:1px solid var(--mint-dim); border-radius:10px; padding:14px 16px;
+    font-size:0.88rem; opacity:0; animation:fadeIn 0.6s ease forwards; animation-delay:1.2s;
+  }
+  @keyframes fadeIn{to{opacity:1; transform:translateY(0);} from{opacity:0; transform:translateY(6px);}}
+  .chat-bubble .who{color:var(--mint); font-weight:600; font-size:0.75rem; text-transform:uppercase; margin-bottom:4px; display:block;}
+
+  /* SECTION HEADERS */
+  .section-eyebrow{color:var(--mint); font-size:0.8rem; text-transform:uppercase; letter-spacing:0.08em; font-weight:600; margin-bottom:12px;}
+  .section-title{font-size:clamp(1.8rem, 3.5vw, 2.6rem); max-width:640px;}
+  .section-sub{color:var(--text-dim); max-width:600px; margin-top:14px; font-size:1.02rem;}
+
+  /* PROBLEM */
+  .problem-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:24px; margin-top:48px;}
+  @media(max-width:768px){.problem-grid{grid-template-columns:1fr;}}
+  .problem-card{background:var(--bg-panel); border:1px solid var(--line); border-radius:var(--radius); padding:28px;}
+  .problem-card .stat{font-family:'Space Grotesk'; font-size:2.2rem; color:var(--amber);}
+  .problem-card p{color:var(--text-dim); margin-top:10px; font-size:0.92rem;}
+
+  /* SERVICES */
+  .service-groups{display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-top:48px;}
+  @media(max-width:768px){.service-groups{grid-template-columns:1fr;}}
+  .service-group{background:var(--bg-panel); border:1px solid var(--line); border-radius:var(--radius); padding:32px;}
+  .service-group h3{font-size:1.15rem; margin-bottom:18px; color:var(--mint);}
+  .service-group ul{list-style:none;}
+  .service-group li{padding:10px 0; border-bottom:1px solid var(--line); font-size:0.94rem; display:flex; align-items:baseline; gap:10px;}
+  .service-group li:last-child{border-bottom:none;}
+  .service-group li::before{content:"→"; color:var(--amber); font-size:0.85rem;}
+
+  /* HOW IT WORKS */
+  .steps{display:grid; grid-template-columns:repeat(4,1fr); gap:20px; margin-top:48px; position:relative;}
+  @media(max-width:900px){.steps{grid-template-columns:1fr;}}
+  .step{position:relative; padding-top:8px;}
+  .step .num{font-family:'Space Grotesk'; font-size:0.85rem; color:var(--mint-dim); background:var(--mint); color:#04150F; width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; margin-bottom:16px;}
+  .step h4{font-size:1.02rem; margin-bottom:8px;}
+  .step p{color:var(--text-dim); font-size:0.88rem;}
+
+  /* INDUSTRIES */
+  .industry-list{display:flex; flex-wrap:wrap; gap:14px; margin-top:40px;}
+  .industry-tag{border:1px solid var(--line); border-radius:999px; padding:12px 22px; font-size:0.92rem; color:var(--text-dim); transition:.2s;}
+  .industry-tag:hover{border-color:var(--mint); color:var(--mint);}
+
+  /* WHY */
+  .why-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:24px; margin-top:48px;}
+  @media(max-width:768px){.why-grid{grid-template-columns:1fr;}}
+  .why-card h4{color:var(--mint); font-size:1.05rem; margin-bottom:10px;}
+  .why-card p{color:var(--text-dim); font-size:0.92rem;}
+
+  /* CONTACT */
+  .contact-section{background:var(--bg-panel); border-top:1px solid var(--line); border-bottom:1px solid var(--line);}
+  .contact-grid{display:grid; grid-template-columns:1fr 1fr; gap:56px; margin-top:48px; align-items:start;}
+  @media(max-width:900px){.contact-grid{grid-template-columns:1fr; gap:36px;}}
+  .contact-info .info-row{display:flex; align-items:center; gap:14px; margin-bottom:18px; font-size:0.95rem;}
+  .info-row .ic{width:38px; height:38px; border-radius:9px; background:var(--mint-dim); display:flex; align-items:center; justify-content:center; flex-shrink:0;}
+  .info-row .ic svg{width:18px; height:18px; stroke:var(--mint);}
+  .info-row a{color:var(--text); border-bottom:1px solid transparent; transition:.2s;}
+  .info-row a:hover{color:var(--mint); border-color:var(--mint);}
+
+  form{display:flex; flex-direction:column; gap:16px;}
+  form label{font-size:0.82rem; color:var(--text-dim); margin-bottom:6px; display:block;}
+  form input, form select, form textarea{
+    width:100%; background:var(--bg); border:1px solid var(--line); border-radius:8px;
+    padding:12px 14px; color:var(--text); font-family:'Inter'; font-size:0.95rem;
+  }
+  form input:focus, form select:focus, form textarea:focus{outline:none; border-color:var(--mint);}
+  form textarea{resize:vertical; min-height:100px;}
+  .btn-submit{background:var(--mint); color:#04150F; padding:14px; border-radius:8px; font-weight:700; border:none; cursor:pointer; font-size:0.98rem; font-family:'Inter'; transition:transform .2s;}
+  .btn-submit:hover{transform:translateY(-2px);}
+  .form-note{font-size:0.78rem; color:var(--text-dim); margin-top:8px;}
+  .form-success{display:none; background:var(--mint-dim); border:1px solid var(--mint); color:var(--mint); padding:14px; border-radius:8px; font-size:0.9rem;}
+
+  /* FINAL CTA */
+  .final-cta{text-align:center;}
+  .final-cta h2{font-size:clamp(1.8rem,4vw,2.8rem); max-width:640px; margin:0 auto;}
+  .final-cta .hero-cta{justify-content:center; margin-top:32px;}
+
+  footer{border-top:1px solid var(--line); padding:32px 0; text-align:center; color:var(--text-dim); font-size:0.85rem;}
+  footer a{color:var(--mint);}
+
+  /* WHATSAPP FLOAT */
+  .wa-float{
+    position:fixed; bottom:24px; right:24px; z-index:200;
+    width:56px; height:56px; border-radius:50%; background:#25D366;
+    display:flex; align-items:center; justify-content:center; box-shadow:0 4px 20px rgba(0,0,0,0.4);
+    transition:transform .2s;
+  }
+  .wa-float:hover{transform:scale(1.08);}
+  .wa-float svg{width:28px; height:28px; fill:#fff;}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <div class="logo"><span class="dot"></span>Ringkeep</div>
+    <div class="nav-links">
+      <a href="#services">Services</a>
+      <a href="#how">How it Works</a>
+      <a href="#industries">Industries</a>
+      <a href="#contact">Contact</a>
+    </div>
+    <a href="#contact" class="nav-cta">Book a Call</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="wrap">
+    <div class="eyebrow">Never Miss Another Customer</div>
+    <h1>Your business answers <span>every call, every message, every time</span> — even when you can't.</h1>
+    <p class="lead">Ringkeep is your AI Receptionist + Sales Assistant + Follow-Up Automation System. It replies, books, reminds, and follows up automatically — so leads stop slipping away.</p>
+    <div class="hero-cta">
+      <a href="#contact" class="btn-primary">Get a Free Strategy Call</a>
+      <a href="#services" class="btn-secondary">See What It Does</a>
+    </div>
+
+    <div class="demo">
+      <div class="demo-label">Live example — missed call auto-reply</div>
+      <div class="phone-row">
+        <div class="phone-icon">
+          <svg class="ring-anim" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.98.36 1.95.68 2.88a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.2-1.25a2 2 0 0 1 2.11-.45c.93.32 1.9.55 2.88.68A2 2 0 0 1 22 16.92z"/></svg>
+        </div>
+        <div class="phone-meta">
+          <strong>Missed Call — Customer</strong>
+          <span>Just now · Ringing → No answer</span>
+        </div>
+      </div>
+      <div class="chat-bubble">
+        <span class="who">Ringkeep auto-reply · SMS/WhatsApp</span>
+        "Sorry we missed your call! This is [Your Business] — reply here and we'll get right back to you, or book a slot instantly: [link]"
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="problem">
+  <div class="wrap">
+    <div class="section-eyebrow">The Problem</div>
+    <h2 class="section-title">Every missed call is a customer calling your competitor next.</h2>
+    <div class="problem-grid">
+      <div class="problem-card">
+        <div class="stat">62%</div>
+        <p>of calls to small service businesses go unanswered during business hours.</p>
+      </div>
+      <div class="problem-card">
+        <div class="stat">78%</div>
+        <p>of customers buy from whoever responds first — not whoever is best.</p>
+      </div>
+      <div class="problem-card">
+        <div class="stat">0</div>
+        <p>extra staff needed. Ringkeep runs 24/7 without adding to payroll.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="services">
+  <div class="wrap">
+    <div class="section-eyebrow">What Ringkeep Does</div>
+    <h2 class="section-title">Four systems. One assistant that never clocks out.</h2>
+    <div class="service-groups">
+      <div class="service-group">
+        <h3>Core Home Service Automations</h3>
+        <ul>
+          <li>Missed Call Auto-Reply (SMS/WhatsApp)</li>
+          <li>Lead Follow-Up Automation</li>
+          <li>Appointment Booking Automation</li>
+          <li>Appointment Reminder Messages</li>
+          <li>Review Request Automation</li>
+          <li>Quote & Invoice Automation</li>
+        </ul>
+      </div>
+      <div class="service-group">
+        <h3>AI Customer Support</h3>
+        <ul>
+          <li>AI WhatsApp Chatbot — 24/7</li>
+          <li>AI Lead Qualification</li>
+          <li>AI Quote Generator</li>
+        </ul>
+      </div>
+      <div class="service-group">
+        <h3>Sales & Marketing Automation</h3>
+        <ul>
+          <li>Abandoned Cart Recovery</li>
+          <li>Customer Reactivation Campaigns</li>
+          <li>WhatsApp Broadcast Campaigns</li>
+        </ul>
+      </div>
+      <div class="service-group">
+        <h3>Operations & Payments</h3>
+        <ul>
+          <li>Daily Sales Reports</li>
+          <li>Order Tracking Updates</li>
+          <li>Payment Reminder Automation</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="how">
+  <div class="wrap">
+    <div class="section-eyebrow">How It Works</div>
+    <h2 class="section-title">Live in days, not months.</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="num">1</div>
+        <h4>Quick Call</h4>
+        <p>We map your current calls, leads, and bookings in a 20-minute call.</p>
+      </div>
+      <div class="step">
+        <div class="num">2</div>
+        <h4>Build & Connect</h4>
+        <p>We wire Ringkeep into your phone, WhatsApp, and calendar — no new software to learn.</p>
+      </div>
+      <div class="step">
+        <div class="num">3</div>
+        <h4>Test Together</h4>
+        <p>We run real scenarios with you before it ever touches a real customer.</p>
+      </div>
+      <div class="step">
+        <div class="num">4</div>
+        <h4>Go Live</h4>
+        <p>Ringkeep starts answering, booking, and following up — you watch it work.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="industries">
+  <div class="wrap">
+    <div class="section-eyebrow">Built For</div>
+    <h2 class="section-title">Any business where a missed message costs money.</h2>
+    <div class="industry-list">
+      <div class="industry-tag">Plumbers</div>
+      <div class="industry-tag">HVAC</div>
+      <div class="industry-tag">Roofers</div>
+      <div class="industry-tag">Electricians</div>
+      <div class="industry-tag">Real Estate</div>
+      <div class="industry-tag">Dental & Healthcare</div>
+      <div class="industry-tag">Legal Services</div>
+      <div class="industry-tag">Insurance</div>
+    </div>
+  </div>
+</section>
+
+<section id="why">
+  <div class="wrap">
+    <div class="section-eyebrow">Why Ringkeep</div>
+    <h2 class="section-title">Not another chatbot. A full follow-up system.</h2>
+    <div class="why-grid">
+      <div class="why-card">
+        <h4>Built for your tools</h4>
+        <p>Works with the phone number, WhatsApp, and calendar you already use — nothing to switch.</p>
+      </div>
+      <div class="why-card">
+        <h4>Set up once, runs forever</h4>
+        <p>No dashboards to babysit. Ringkeep works quietly in the background every hour of the day.</p>
+      </div>
+      <div class="why-card">
+        <h4>Pays for itself</h4>
+        <p>One recovered job usually covers the entire month's cost of running the system.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="contact" class="contact-section">
+  <div class="wrap">
+    <div class="section-eyebrow">Get Started</div>
+    <h2 class="section-title">Stop losing customers to a missed call.</h2>
+    <p class="section-sub">Tell us about your business and we'll show you exactly where you're losing leads — and how Ringkeep fixes it.</p>
+
+    <div class="contact-grid">
+      <div class="contact-info">
+        <div class="info-row">
+          <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z" opacity="0"/><path d="M22 6l-10 7L2 6"/><path d="M2 6h20v12H2z"/></svg></div>
+          <a href="mailto:anasicm@gmail.com">anasicm@gmail.com</a>
+        </div>
+        <div class="info-row">
+          <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 2H7a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z"/><path d="M12 18h.01"/></svg></div>
+          <a href="https://wa.me/923205707420" target="_blank">WhatsApp — +92 320 5707420</a>
+        </div>
+        <div class="info-row">
+          <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg></div>
+          <a href="https://www.linkedin.com/in/anasicm/" target="_blank">linkedin.com/in/anasicm</a>
+        </div>
+        <div class="info-row">
+          <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
+          <a href="https://calendly.com/anas15585a/free-automation-strategy-call" target="_blank">Book a Free Strategy Call</a>
+        </div>
+      </div>
+
+      <div>
+        <form id="ringkeep-form" action="https://formspree.io/f/anasicm@gmail.com" method="POST">
+          <div>
+            <label for="name">Your Name</label>
+            <input type="text" id="name" name="name" required>
+          </div>
+          <div>
+            <label for="business">Business Name</label>
+            <input type="text" id="business" name="business">
+          </div>
+          <div>
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" required>
+          </div>
+          <div>
+            <label for="phone">Phone / WhatsApp</label>
+            <input type="tel" id="phone" name="phone">
+          </div>
+          <div>
+            <label for="industry">Industry</label>
+            <select id="industry" name="industry">
+              <option>Plumbing / HVAC / Roofing / Electrical</option>
+              <option>Real Estate</option>
+              <option>Dental / Healthcare</option>
+              <option>Legal Services</option>
+              <option>Insurance</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div>
+            <label for="message">What's slowing your leads down?</label>
+            <textarea id="message" name="message"></textarea>
+          </div>
+          <button type="submit" class="btn-submit">Send & Get My Free Call</button>
+          <div class="form-note">First submission asks you to confirm your email once (from Formspree) — after that, every message lands straight in your inbox.</div>
+          <div class="form-success" id="form-success">Thanks — we got your message and will reach out shortly.</div>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="final-cta">
+  <div class="wrap">
+    <h2>Your customers are already messaging you. <br>Make sure someone always answers.</h2>
+    <div class="hero-cta">
+      <a href="#contact" class="btn-primary">Get a Free Strategy Call</a>
+      <a href="https://wa.me/923205707420" target="_blank" class="btn-secondary">Chat on WhatsApp</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    &copy; 2026 Ringkeep. Built to make sure you never miss a customer. &nbsp;|&nbsp;
+    <a href="mailto:anasicm@gmail.com">anasicm@gmail.com</a> &nbsp;|&nbsp;
+    <a href="https://www.linkedin.com/in/anasicm/" target="_blank">LinkedIn</a>
+  </div>
+</footer>
+
+<a class="wa-float" href="https://wa.me/923205707420" target="_blank" aria-label="Chat on WhatsApp">
+  <svg viewBox="0 0 24 24"><path d="M17.6 6.32A7.85 7.85 0 0 0 12.05 4a7.9 7.9 0 0 0-6.84 11.83L4 20l4.3-1.13a7.86 7.86 0 0 0 3.75.96h0a7.9 7.9 0 0 0 7.9-7.9 7.85 7.85 0 0 0-2.35-5.6zM12.05 18.4a6.56 6.56 0 0 1-3.34-.92l-.24-.14-2.48.65.66-2.41-.16-.25a6.58 6.58 0 1 1 12.24-3.5 6.59 6.59 0 0 1-6.68 6.57zm3.6-4.93c-.2-.1-1.17-.58-1.35-.64-.18-.07-.31-.1-.44.1-.13.19-.5.64-.62.77-.11.13-.23.14-.42.05-1.15-.57-1.9-1.02-2.66-2.32-.2-.35.2-.32.57-1.07.06-.13.03-.24-.03-.34-.06-.1-.53-1.28-.72-1.75-.19-.46-.39-.4-.53-.4-.14-.01-.3-.01-.46-.01-.16 0-.42.06-.64.3-.22.24-.85.83-.85 2.02s.87 2.35 1 2.51c.12.17 1.7 2.6 4.12 3.54 2.06.8 2.06.53 2.43.5.37-.03 1.17-.48 1.34-.94.16-.46.16-.86.11-.94-.05-.09-.19-.14-.4-.24z"/></svg>
+</a>
+
+<script>
+  document.getElementById('ringkeep-form').addEventListener('submit', async function(e){
+    e.preventDefault();
+    const form = e.target;
+    const data = new FormData(form);
+    try{
+      const res = await fetch(form.action, {
+        method: 'POST',
+        body: data,
+        headers: { 'Accept': 'application/json' }
+      });
+      if(res.ok){
+        form.reset();
+        document.getElementById('form-success').style.display = 'block';
+      } else {
+        alert('Something went wrong — please try WhatsApp or email instead.');
+      }
+    } catch(err){
+      alert('Something went wrong — please try WhatsApp or email instead.');
+    }
+  });
+</script>
+
+</body>
+</html>
